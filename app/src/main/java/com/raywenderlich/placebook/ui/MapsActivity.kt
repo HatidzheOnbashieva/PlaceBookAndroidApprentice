@@ -1,11 +1,11 @@
-package com.raywenderlich.placebook
+package com.raywenderlich.placebook.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.ApiException
@@ -15,16 +15,17 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
-import com.raywenderlich.placebook.databinding.ActivityMapsBinding
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.raywenderlich.placebook.R
+import com.raywenderlich.placebook.adapter.BookmarkInfoWindowAdapter
+import com.raywenderlich.placebook.databinding.ActivityMapsBinding
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -68,12 +69,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
+        map.setInfoWindowAdapter(BookmarkInfoWindowAdapter(this))
         getCurrentLocation()
+
 
         map.setOnPoiClickListener {
             //Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
             displayPoi(it)
         }
+
 
     }
 
@@ -90,7 +94,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            REQUEST_LOCATION)
+            REQUEST_LOCATION
+        )
     }
 
     private fun getCurrentLocation() {
@@ -131,6 +136,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     val latLng = LatLng(location.latitude, location.longitude)
 
+//                    map.clear()
 //                    map.addMarker(MarkerOptions().position(latLng)
 //                        .title("You are here!"))
 
@@ -161,14 +167,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun displayPoi(pointOfInterest: PointOfInterest) {
-        // 1
+
         displayPoiGetPlaceStep(pointOfInterest)
     }
 
     private fun displayPoiGetPlaceStep(pointOfInterest: PointOfInterest) {
         val placeId = pointOfInterest.placeId
 
-        // 2
+
         val placeFields = listOf(
             Place.Field.ID,
             Place.Field.NAME,
@@ -178,19 +184,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Place.Field.LAT_LNG
         )
 
-        // 3
+
         val request = FetchPlaceRequest
             .builder(placeId, placeFields)
             .build()
 
-        // 4
+
         placesClient.fetchPlace(request)
             .addOnSuccessListener { response ->
-                // 5
+
                 val place = response.place
              displayPoiGetPhotoStep(place)
             }.addOnFailureListener { exception ->
-                // 6
+
                 if (exception is ApiException) {
                     val statusCode = exception.statusCode
                     Log.e(
@@ -204,23 +210,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun displayPoiGetPhotoStep(place: Place) {
-        // 1
+
         val photoMetadata = place
             .getPhotoMetadatas()?.get(0)
-        // 2
+
         if (photoMetadata == null) {
-            displayPoiDisplayStep(place, null)
+            val photo = BitmapFactory.decodeResource(resources, R.drawable.default_photo) //this line of code is added by me because the app is crashing if the image is null;
+            // so I am assigning the imageview the default_photo after converting it to a bitmap
+            displayPoiDisplayStep(place, photo)
             return
         }
-        // 3
+
         val photoRequest = FetchPhotoRequest
             .builder(photoMetadata)
             .setMaxWidth(resources.getDimensionPixelSize(
-                R.dimen.default_image_width))
+                R.dimen.default_image_width
+            ))
             .setMaxHeight(resources.getDimensionPixelSize(
-                R.dimen.default_image_height))
+                R.dimen.default_image_height
+            ))
             .build()
-        // 4
+
         placesClient.fetchPhoto(photoRequest)
             .addOnSuccessListener { fetchPhotoResponse ->
                 val bitmap = fetchPhotoResponse.bitmap
@@ -228,7 +238,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }.addOnFailureListener { exception ->
                 if (exception is ApiException) {
                     val statusCode = exception.statusCode
-                    Log.e(TAG,
+                    Log.e(
+                        TAG,
                         "Place not found: " +
                                 exception.message + ", " +
                                 "statusCode: " + statusCode)
@@ -237,20 +248,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun displayPoiDisplayStep(place: Place, photo: Bitmap?) {
-        val iconPhoto = if (photo == null) {
-            BitmapDescriptorFactory.defaultMarker()
-        } else {
-            BitmapDescriptorFactory.fromBitmap(photo)
-        }
+//        val iconPhoto = if (photo == null) {
+//            BitmapDescriptorFactory.defaultMarker()
+//        } else {
+//            BitmapDescriptorFactory.fromBitmap(photo)
+//        }
+//
+//        map.addMarker(
+//            MarkerOptions()
+//            .position(place.latLng as LatLng)
+//            .icon(iconPhoto)
+//            .title(place.name)
+//            .snippet(place.phoneNumber)
+//        )
 
-        map.addMarker(
-            MarkerOptions()
+        val marker = map.addMarker(MarkerOptions()
             .position(place.latLng as LatLng)
-            .icon(iconPhoto)
             .title(place.name)
             .snippet(place.phoneNumber)
-        )
+        ).apply {
+            this?.tag = photo
+        }
+        //marker?.tag = photo
+        //map.clear()
+     //   map.setOnMarkerClickListener(this)
     }
 
-
+//    override fun onMarkerClick(clickedMarker: Marker?): Boolean {
+//        return if(clickedMarker?.tag == "Something" ) {
+//            Toast.makeText(this, "Hello there", Toast.LENGTH_LONG).show()
+//            clickedMarker.remove()
+//            true
+//        } else {
+//            false
+//        }
+//    }
 }
