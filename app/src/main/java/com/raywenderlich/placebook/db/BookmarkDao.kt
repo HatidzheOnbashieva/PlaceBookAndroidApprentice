@@ -10,7 +10,7 @@ import com.raywenderlich.placebook.model.Bookmark
 interface BookmarkDao {
 
 
-    @Query("SELECT * FROM Bookmark")
+    @Query("SELECT * FROM Bookmark ORDER BY name")
     fun loadAll(): LiveData<List<Bookmark>>
 
 

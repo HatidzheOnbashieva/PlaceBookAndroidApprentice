@@ -3,8 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.41384615384615386" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/drawable/ic_launcher_background.xml" value="0.41384615384615386" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/activity_bookmark_details.xml" value="0.38903985507246375" />
         <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/activity_maps.xml" value="0.22708333333333333" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/bookmark_item.xml" value="0.38903985507246375" />
         <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/content_bookmark_info.xml" value="0.4026268115942029" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/drawer_view_maps.xml" value="0.38903985507246375" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/layout/main_view_maps.xml" value="0.38903985507246375" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/menu/menu_bookmark_details.xml" value="0.4041666666666667" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.246875" />
+        <entry key="..\:/Users/HatidzheOnbashieva/AndroidStudioProjects/PlaceBook/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.41384615384615386" />
       </map>
     </option>
   </component>
