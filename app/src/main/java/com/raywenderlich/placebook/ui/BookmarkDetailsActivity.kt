@@ -11,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
@@ -19,6 +20,7 @@ import com.raywenderlich.placebook.databinding.ActivityBookmarkDetailsBinding
 import com.raywenderlich.placebook.util.ImageUtils
 import com.raywenderlich.placebook.viewmodel.BookmarkDetailsViewModel
 import java.io.File
+import java.net.URLEncoder
 
 class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.PhotoOptionDialogListener{
     private lateinit var databinding: ActivityBookmarkDetailsBinding
@@ -35,6 +37,7 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
         databinding = DataBindingUtil.setContentView(this, R.layout.activity_bookmark_details)
         setupToolbar()
         getIntentData()
+        setupFab()
     }
 
     private fun setupToolbar() {
@@ -95,6 +98,10 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save -> {
             saveChanges()
+            true
+        }
+        R.id.action_delete -> {
+            deleteBookmark()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -243,4 +250,53 @@ class BookmarkDetailsActivity : AppCompatActivity(), PhotoOptionDialogFragment.P
 
     }
 
+    private fun deleteBookmark()
+    {
+        val bookmarkView = bookmarkDetailsView ?: return
+
+        AlertDialog.Builder(this)
+            .setMessage("Delete?")
+            .setPositiveButton("Ok") { _, _ ->
+                bookmarkDetailsViewModel.deleteBookmark(bookmarkView)
+                finish()
+            }
+            .setNegativeButton("Cancel", null)
+            .create().show()
+    }
+
+    private fun sharePlace() {
+        // 1
+        val bookmarkView = bookmarkDetailsView ?: return
+        // 2
+        var mapUrl = ""
+        if (bookmarkView.placeId == null) {
+            // 3
+            val location = URLEncoder.encode("${bookmarkView.latitude},"
+                    + "${bookmarkView.longitude}", "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" +
+                    "&destination=$location"
+        } else {
+            // 4
+            val name = URLEncoder.encode(bookmarkView.name, "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" +
+                    "&destination=$name&destination_place_id=" +
+                    "${bookmarkView.placeId}"
+        }
+        // 5
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        // 6
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+            "Check out ${bookmarkView.name} at:\n$mapUrl")
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+            "Sharing ${bookmarkView.name}")
+        // 7
+        sendIntent.type = "text/plain"
+        // 8
+        startActivity(sendIntent)
+    }
+
+    private fun setupFab() {
+        databinding.fab.setOnClickListener { sharePlace() }
+    }
 }
